@@ -1,0 +1,31 @@
+services:
+  # ─── Backend Service (Express) ─────────────────────────────────────────────
+  - type: web
+    name: dashboard-backend
+    env: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+      - key: MONGO_URI
+        sync: false
+        placeholder: "Enter your MongoDB Atlas URL"
+
+  # ─── Frontend Service (React + Vite) ───────────────────────────────────────
+  - type: static
+    name: dashboard-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: build
+    envVars:
+      - key: VITE_API_URL
+        # Automatically links to the backend URL
+        fromService:
+          name: dashboard-backend
+          type: web
+          property: url
