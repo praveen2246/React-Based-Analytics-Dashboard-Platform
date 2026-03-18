@@ -16,14 +16,16 @@ services:
         placeholder: "Enter your MongoDB Atlas URL"
 
   # ─── Frontend Service (React + Vite) ───────────────────────────────────────
-  - type: static
+  - type: web
     name: dashboard-frontend
+    env: node
+    plan: free
+    region: oregon
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: build
+    startCommand: npx serve -s build
     envVars:
       - key: VITE_API_URL
-        # Automatically links to the backend URL
         fromService:
           name: dashboard-backend
           type: web
