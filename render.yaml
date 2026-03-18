@@ -16,7 +16,7 @@ services:
         placeholder: "Enter your MongoDB Atlas URL"
 
   # ─── Frontend Service (React + Vite) ───────────────────────────────────────
-  - type: static_site
+  - type: web
     name: dashboard-frontend
     env: static
     rootDir: frontend
