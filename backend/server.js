@@ -17,6 +17,19 @@ app.use(cors({
 app.options('*', cors()); // Enable pre-flight for all routes
 app.use(express.json());
 
+let isDbConnected = false;
+
+// Middleware to check DB connection
+app.use((req, res, next) => {
+  if (!isDbConnected && req.url.startsWith('/api/') && req.url !== '/api/health') {
+    return res.status(503).json({ 
+      success: false, 
+      message: 'Database not connected. Please check your MONGO_URI and IP Whitelist in MongoDB Atlas.' 
+    });
+  }
+  next();
+});
+
 // Request Logger
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
@@ -42,12 +55,15 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/dashboard_
 mongoose
   .connect(MONGO_URI)
   .then(() => {
+    isDbConnected = true;
     console.log('✅ MongoDB connected');
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    if (!process.env.VERCEL) { // Don't listen if in serverless env (though Render is fine)
+       app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    }
   })
   .catch((err) => {
+    isDbConnected = false;
     console.error('MongoDB connection error:', err);
-    // Start server anyway for demo/testing without DB
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT} (no DB)`));
   });
 
