@@ -17,12 +17,24 @@ app.use(cors({
 app.options('*', cors()); // Enable pre-flight for all routes
 app.use(express.json());
 
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // Routes
 app.use('/api/orders', orderRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+// 404 Handler for undefined routes
+app.use((req, res) => {
+  console.warn(`⚠️ 404 Not Found: ${req.method} ${req.url}`);
+  res.status(404).json({ success: false, message: `Route ${req.url} not found on this server` });
+});
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/dashboard_db';
