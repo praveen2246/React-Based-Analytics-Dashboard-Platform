@@ -26,7 +26,5 @@ services:
     startCommand: npx serve -s build
     envVars:
       - key: VITE_API_URL
-        fromService:
-          name: dashboard-backend
-          type: web
-          property: url
+        sync: false
+        placeholder: "Enter your backend URL (e.g. https://your-backend.onrender.com/api)"
